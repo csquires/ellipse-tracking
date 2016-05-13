@@ -18,7 +18,11 @@ def transition(original_map,new_objects,evaluation_function):
 
 	best_correspondence = get_best_correspondence(original_objects,new_objects,evaluation_function)
 	new_map = {}
-	if len(original_map.values()) == 0 max_id = 0 else max_id = max(original_map.values())
+
+	if len(original_map.values()) == 0:
+		max_id = 0
+	else:
+		max_id = max(original_map.values())
 
 	#assign objects corresponding ids or make new ids if there were more new objects than old
 	for old_object,new_object in best_correspondence:
@@ -31,6 +35,7 @@ def transition(original_map,new_objects,evaluation_function):
 
 	return new_map
 
+#TODO faster implementation
 def get_best_correspondence(list1,list2,evaluation_function):
 	"""
 	Get best correspondence between two lists (of possibly different size) given an evaluation function

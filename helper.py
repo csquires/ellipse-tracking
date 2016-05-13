@@ -28,8 +28,6 @@ def show_video_from_cap(cap):
 	"""
 	Shows a video from the cv2.VideoCapture object cap
 	"""
-	cap = cv2.VideoCapture(src)
-
 	while cap.isOpened():
 		ret, frame = cap.read()
 		if ret == True:
@@ -60,10 +58,15 @@ def test_ellipse_detection(img):
 	red_img = ft.get_red(img)
 	show_img(red_img)
 
-	ellipses = ft.get_ellipses_hsv(red_img,min_radius=10)
+	ellipses = ft.get_ellipses_hsv(red_img,min_radius=20)
 	ellipse_image = ft.get_ellipse_image(red_img, ellipses)
 	show_img(ellipse_image)
 
-# cap = cv2.VideoCapture('output.avi')
+# img = cv2.imread("img.jpg")
+# test_ellipse_detection(img)
+
+# record_video("output.avi")
+# cap = cv2.VideoCapture("output.avi")
 # show_video_from_cap(cap)
-img = cv2.imread("img.jpg")
+
+# ft.follow_ellipses(cap)

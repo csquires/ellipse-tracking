@@ -13,7 +13,7 @@ def ellipse_difference(ellipse1,ellipse2,a=1,b=1,c=1):
 		b: weight on log of area ratio
 		c: weight of difference in angle
 	Returns:
-		'difference' between ellipses; weighted sum of displacement of centers, log of area ratio, and difference in angle
+		'difference' between ellipses; weighted sum of displacement of centers, area ratio, and difference in angle
 	"""
 	#TODO: find better default parameters
 	ellipse1 = standardize_ellipse(ellipse1)
@@ -27,7 +27,7 @@ def ellipse_difference(ellipse1,ellipse2,a=1,b=1,c=1):
 	angle2 = ellipse2[2]
 
 	displacement = sqrt((center1[0]-center2[0])**2 + (center1[1]-center2[1])**2)
-	size_change = log(axes1[0]*axes1[1]/(axes2[0]*axes2[1]))
+	size_change = axes1[0]*axes1[1]/(axes2[0]*axes2[1])
 	rotation = abs(angle1-angle2)
 
 	return a*displacement + b*size_change + c*rotation
@@ -60,13 +60,15 @@ def fit_error(ellipse,contour):
 		ellipse: ellipse that fits contour
 		contour: contour that ellipse was fitted to
 	Returns:
-		sum of distances of each point on contour to the ellipse
+		sum of distances of each point on contour to the ellipse, scaled by size of ellipse
 	"""
 	error = 0.0
+	x, y = ellipse[1]
+	scale = sqrt(x*y)
 	for pnt in contour:
 		pnt = tuple(pnt[0])
 		error += distance_from_point_to_ellipse(pnt,ellipse)
-	return error
+	return error/scale
 
 def rotate(pnt, angle):
 	"""
@@ -101,6 +103,7 @@ def distance_from_point_to_ellipse(pnt,ellipse):
 
 	return sqrt((x0-y0)**2 + ((x1-y1)**2))
 
+#TODO: not exactly correct
 def closest_point_on_ellipse(pnt,ellipse):
 	"""
 	Returns the closest point on ellipse to pnt

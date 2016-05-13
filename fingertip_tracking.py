@@ -108,7 +108,7 @@ def get_ellipses_hsv(hsv_img,min_radius=0,fill=True):
 	ellipses_contour_pairs = filter(lambda (e,c): min(e[1]) > min_radius, ellipses_contour_pairs)
 
 	#get top 5 ellipses
-	ellipses_contour_pairs = sorted(ellipses_contour_pairs, key= lambda (e,c): -1*fit_error(e,c))[:5]
+	ellipses_contour_pairs = sorted(ellipses_contour_pairs, key= lambda (e,c): fit_error(e,c))[:5]
 
 	#extract ellipses from pairs
 	ellipses = map(lambda (e,c): e, ellipses_contour_pairs)
@@ -185,7 +185,7 @@ def get_contour_image(img,contours):
 	Returns copy of image with contours overlaid
 
 	Args:
-		img: image to voerlay contours on
+		img: image to overlay contours on
 		contours: list of contours to overlay on image
 	Returns:
 		copy of image with contours overlaid
@@ -226,19 +226,21 @@ def follow_ellipses(cap,draw_contours=False,draw_ellipses=False):
 	current_ellipses = None
 	dictionaries = []
 
-	while True:
+	while cap.isOpened():
 		previous_ellipses = current_ellipses
 		
-		# color_filtered_image = get_colored_regions(frame,color)
 		ret, frame = cap.read()
-		red_only = get_red(frame)
+		if ret != True: break
+		red_img = get_red(frame)
+		images = [red_img]
 
-		images = [frame,watershed_img]
 		if draw_contours:
-			contour_image = get_contour_image(red_only, contours)
+			contours = get_contours_hsv(red_img)
+			contour_image = get_contours_hsv(red_img, contours)
 			images.append(contour_image)
 		if draw_ellipses:
-			ellipse_image = get_ellipse_image(red_only,current_ellipses)
+			current_ellipses = get_ellipses_hsv(red_img)
+			ellipse_image = get_ellipse_image(red_img, ellipses)
 			images.append(ellipse_image)
 		cv2.imshow("red circles", np.hstack(images))
 
@@ -246,12 +248,14 @@ def follow_ellipses(cap,draw_contours=False,draw_ellipses=False):
 		if previous_ellipses is None:
 			current_dict = {}
 			counter = 0
-			for ellipse in current_ellipses:
-				current_dict[ellipse] = counter
-				counter += 1
+			if current_ellipses is not None:
+				for ellipse in current_ellipses:
+					current_dict[ellipse] = counter
+					counter += 1
 		else:
 			dictionaries.append(current_dict)
 			current_dict = ct.transition(current_dict,current_ellipses,ellipse_difference)
+
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
 
